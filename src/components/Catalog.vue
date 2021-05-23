@@ -1,28 +1,16 @@
 <template>
   <div>
     <div class="header">
-      <div class="title">
-        Services
-      </div>
+      <div class="title">Services</div>
       <div>
-        <button class="action">
-          Add new service
-        </button>
+        <button class="action">Add new service</button>
       </div>
     </div>
     <div class="search-bar">
-      <input
-        v-model="searchTerm"
-        placeholder="Search"
-        results
-      >
+      <input v-model="searchTerm" placeholder="Search" results />
     </div>
     <div class="catalog">
-      <KCard
-        v-for="service in searchServices"
-        :key="service.id"
-        class="card"
-      >
+      <KCard v-for="service in searchServices" :key="service.id" class="card">
         <template slot="title">
           <div class="card-title">
             {{ service.name }}
@@ -44,38 +32,39 @@
   </div>
 </template>
 
-<script lang="js">
-import Vue from 'vue'
-import KCard from '@kongponents/kcard'
-import axios from 'axios'
+<script lang="ts">
+import Vue from "vue";
+import KCard from "@kongponents/kcard";
+import axios from "axios";
+import Service from "../interfaces/Service";
 
 export default Vue.extend({
-  name: 'Catalog',
+  name: "Catalog",
   components: {
-    KCard
+    KCard,
   },
-  data () {
+  data(): { services: Service[]; searchTerm: string } {
     return {
       services: [],
-      searchTerm: ''
-    }
+      searchTerm: "",
+    };
   },
   computed: {
-    searchServices () {
-      return this.services
-    }
+    searchServices(): Service[] {
+      return this.services;
+    },
   },
-  mounted () {
-    this.fetchServices()
+  mounted() {
+    this.fetchServices();
   },
   methods: {
-    fetchServices () {
-      axios.get('/api/service_packages').then((res) => {
-        this.services = res.data
-      })
-    }
-  }
-})
+    fetchServices() {
+      axios.get("/api/service_packages").then((res) => {
+        this.services = res.data;
+      });
+    },
+  },
+});
 </script>
 
 <style lang="scss">
