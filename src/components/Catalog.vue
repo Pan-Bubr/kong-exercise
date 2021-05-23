@@ -1,16 +1,28 @@
 <template>
   <div>
     <div class="header">
-      <div class="title">Services</div>
+      <div class="title">
+        Services
+      </div>
       <div>
-        <button class="action">Add new service</button>
+        <button class="action">
+          Add new service
+        </button>
       </div>
     </div>
     <div class="search-bar">
-      <input v-model="searchTerm" placeholder="Search" results />
+      <input
+        v-model="searchTerm"
+        placeholder="Search"
+        results
+      >
     </div>
     <div class="catalog">
-      <KCard v-for="service in searchServices" :key="service.id" class="card">
+      <KCard
+        v-for="service in searchServices"
+        :key="service.id"
+        class="card"
+      >
         <template slot="title">
           <div class="card-title">
             {{ service.name }}
@@ -33,38 +45,42 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import KCard from "@kongponents/kcard";
-import axios from "axios";
-import Service from "../interfaces/Service";
+import Vue from 'vue'
+import KCard from '@kongponents/kcard'
+import axios from 'axios'
+import Service from '../interfaces/Service'
 
 export default Vue.extend({
-  name: "Catalog",
+  name: 'Catalog',
   components: {
-    KCard,
+    KCard
   },
-  data(): { services: Service[]; searchTerm: string } {
+  data (): { services: Service[]; searchTerm: string } {
     return {
       services: [],
-      searchTerm: "",
-    };
+      searchTerm: ''
+    }
   },
   computed: {
-    searchServices(): Service[] {
-      return this.services;
-    },
+    searchServices (): Service[] {
+      return this.services.filter(
+        ({ name, description }) =>
+          name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          description.toLowerCase().includes(this.searchTerm.toLowerCase())
+      )
+    }
   },
-  mounted() {
-    this.fetchServices();
+  mounted () {
+    this.fetchServices()
   },
   methods: {
-    fetchServices() {
-      axios.get("/api/service_packages").then((res) => {
-        this.services = res.data;
-      });
-    },
-  },
-});
+    fetchServices () {
+      axios.get('/api/service_packages').then((res) => {
+        this.services = res.data
+      })
+    }
+  }
+})
 </script>
 
 <style lang="scss">
