@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div id="nav">
+    <div class="nav">
       <router-link
         to="/"
         class="nav-item nav-item-wide"
@@ -15,7 +15,7 @@
         class="nav-item"
         height="20px"
         width="20px"
-        :src="`${publicPath}assets/Magnifying_Glass.svg`"
+        :src="`${publicPath}assets/Notifications.svg`"
       >
       <img
         class="nav-item"
@@ -56,7 +56,7 @@ export default Vue.extend({
   color: #2c3e50;
 }
 
-#nav {
+.nav {
   padding: 14px 24px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
@@ -64,7 +64,7 @@ export default Vue.extend({
   align-items: center;
   gap: 24px;
 
-  .nav-item {
+  &-item {
     display: block;
 
     &-wide {

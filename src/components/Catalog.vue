@@ -1,25 +1,22 @@
 <template>
   <div>
     <div class="header">
-      <div class="title">
-        Services
-      </div>
+      <div class="title">Services</div>
       <div>
-        <button class="action">
-          Add new service
-        </button>
+        <button class="action">Add new service</button>
       </div>
     </div>
     <div class="search-bar">
       <input
+        type="text"
         v-model="searchTerm"
         placeholder="Search"
-        results
-      >
+        @keydown="resetPage"
+      />
     </div>
     <div class="catalog">
       <KCard
-        v-for="service in searchServices"
+        v-for="service in displayedServices"
         :key="service.id"
         class="card"
       >
@@ -41,46 +38,117 @@
         </template>
       </KCard>
     </div>
+    <div class="paging">
+      <button class="arrow" v-on:click="previousPage" :disabled="isFirstPage">
+        <img
+          class="reversed"
+          height="44px"
+          width="44px"
+          :src="
+            isFirstPage
+              ? `${publicPath}assets/Grey-Arrow.svg`
+              : `${publicPath}assets/Active-Arrow.svg`
+          "
+        />
+      </button>
+      <div class="directions">
+        {{ pagingDirections }}
+      </div>
+
+      <button class="arrow" v-on:click="nextPage" :disabled="isLastPage">
+        <img
+          height="44px"
+          width="44px"
+          :src="
+            isLastPage
+              ? `${publicPath}assets/Grey-Arrow.svg`
+              : `${publicPath}assets/Active-Arrow.svg`
+          "
+        />
+      </button>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import KCard from '@kongponents/kcard'
-import axios from 'axios'
-import Service from '../interfaces/Service'
+import Vue from "vue";
+import KCard from "@kongponents/kcard";
+import axios from "axios";
+import Service from "../interfaces/Service";
+
+const ROW_NUMBER = 3;
+const COLUMN_NUMBER = 4;
+const ITEM_COUNT = ROW_NUMBER * COLUMN_NUMBER;
 
 export default Vue.extend({
-  name: 'Catalog',
+  name: "Catalog",
   components: {
-    KCard
+    KCard,
   },
-  data (): { services: Service[]; searchTerm: string } {
+  data(): {
+    services: Service[];
+    searchTerm: string;
+    page: number;
+    publicPath: string;
+  } {
     return {
       services: [],
-      searchTerm: ''
-    }
-  },
-  computed: {
-    searchServices (): Service[] {
-      return this.services.filter(
-        ({ name, description }) =>
-          name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          description.toLowerCase().includes(this.searchTerm.toLowerCase())
-      )
-    }
-  },
-  mounted () {
-    this.fetchServices()
+      searchTerm: "",
+      page: 1,
+      publicPath: process.env.BASE_URL,
+    };
   },
   methods: {
-    fetchServices () {
-      axios.get('/api/service_packages').then((res) => {
-        this.services = res.data
-      })
-    }
-  }
-})
+    async fetchServices() {
+      let res = await axios.get("/api/service_packages");
+      this.services = res.data;
+    },
+    nextPage() {
+      if (!this.isLastPage) this.page += 1;
+    },
+    previousPage() {
+      if (!this.isFirstPage) this.page -= 1;
+    },
+    resetPage() {
+      this.page = 1;
+    },
+    containsSearchTerm({ name, description }: Service): boolean {
+      return (
+        name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        description.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
+  },
+  mounted() {
+    this.fetchServices();
+  },
+  computed: {
+    searchServices(): Service[] {
+      return this.services.filter(this.containsSearchTerm);
+    },
+    displayedServices(): Service[] {
+      return this.searchServices.slice(this.pagingFrom, this.pagingTo);
+    },
+    pagingFrom(): number {
+      return ITEM_COUNT * (this.page - 1);
+    },
+    pagingTo(): number {
+      return ITEM_COUNT * this.page;
+    },
+    pagingDirections(): string {
+      return `${this.pagingFrom + 1} - ${Math.min(
+        this.pagingTo,
+        this.searchServices.length
+      )} of ${this.searchServices.length}`;
+    },
+    isFirstPage(): boolean {
+      return this.page === 1;
+    },
+    isLastPage(): boolean {
+      return ITEM_COUNT * this.page >= this.searchServices.length;
+    },
+  },
+});
 </script>
 
 <style lang="scss">
@@ -136,7 +204,7 @@ export default Vue.extend({
   margin-top: 24px;
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   text-align: left;
   column-gap: 28px;
   row-gap: 32px;
@@ -185,6 +253,39 @@ export default Vue.extend({
         margin-right: 5px;
       }
     }
+  }
+}
+
+.paging {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 48px;
+
+  margin-bottom: 82px;
+
+  .arrow {
+    display: block;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &:active {
+      transform: translateY(1px);
+      filter: saturate(150%);
+    }
+
+    .reversed {
+      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1);
+    }
+  }
+
+  .directions {
+    padding: 0 48px;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.45);
+    opacity: 0.7;
   }
 }
 </style>
