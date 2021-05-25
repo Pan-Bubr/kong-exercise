@@ -1,18 +1,22 @@
 <template>
   <div>
     <div class="header">
-      <div class="title">Services</div>
+      <div class="title">
+        Services
+      </div>
       <div>
-        <button class="action">Add new service</button>
+        <button class="action">
+          Add new service
+        </button>
       </div>
     </div>
     <div class="search-bar">
       <input
-        type="text"
         v-model="searchTerm"
+        type="text"
         placeholder="Search"
         @keydown="resetPage"
-      />
+      >
     </div>
     <div class="catalog">
       <KCard
@@ -39,7 +43,11 @@
       </KCard>
     </div>
     <div class="paging">
-      <button class="arrow" v-on:click="previousPage" :disabled="isFirstPage">
+      <button
+        class="arrow"
+        :disabled="isFirstPage"
+        @click="previousPage"
+      >
         <img
           class="reversed"
           height="44px"
@@ -49,13 +57,17 @@
               ? `${publicPath}assets/Grey-Arrow.svg`
               : `${publicPath}assets/Active-Arrow.svg`
           "
-        />
+        >
       </button>
       <div class="directions">
         {{ pagingDirections }}
       </div>
 
-      <button class="arrow" v-on:click="nextPage" :disabled="isLastPage">
+      <button
+        class="arrow"
+        :disabled="isLastPage"
+        @click="nextPage"
+      >
         <img
           height="44px"
           width="44px"
@@ -64,99 +76,106 @@
               ? `${publicPath}assets/Grey-Arrow.svg`
               : `${publicPath}assets/Active-Arrow.svg`
           "
-        />
+        >
       </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import KCard from "@kongponents/kcard";
-import axios from "axios";
-import Service from "../interfaces/Service";
+import Vue from 'vue'
+import KCard from '@kongponents/kcard'
+import axios from 'axios'
+import Service from '../interfaces/Service'
 
-const ROW_NUMBER = 3;
-const COLUMN_NUMBER = 4;
-const ITEM_COUNT = ROW_NUMBER * COLUMN_NUMBER;
+const ITEM_COUNT = 12
 
 export default Vue.extend({
-  name: "Catalog",
+  name: 'Catalog',
   components: {
-    KCard,
+    KCard
   },
-  data(): {
+  data (): {
     services: Service[];
     searchTerm: string;
     page: number;
     publicPath: string;
-  } {
+    } {
     return {
       services: [],
-      searchTerm: "",
+      searchTerm: '',
       page: 1,
-      publicPath: process.env.BASE_URL,
-    };
-  },
-  methods: {
-    async fetchServices() {
-      let res = await axios.get("/api/service_packages");
-      this.services = res.data;
-    },
-    nextPage() {
-      if (!this.isLastPage) this.page += 1;
-    },
-    previousPage() {
-      if (!this.isFirstPage) this.page -= 1;
-    },
-    resetPage() {
-      this.page = 1;
-    },
-    containsSearchTerm({ name, description }: Service): boolean {
-      return (
-        name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        description.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    },
-  },
-  mounted() {
-    this.fetchServices();
+      publicPath: process.env.BASE_URL
+    }
   },
   computed: {
-    searchServices(): Service[] {
-      return this.services.filter(this.containsSearchTerm);
+    searchServices (): Service[] {
+      return this.services.filter(this.containsSearchTerm)
     },
-    displayedServices(): Service[] {
-      return this.searchServices.slice(this.pagingFrom, this.pagingTo);
+    displayedServices (): Service[] {
+      return this.searchServices.slice(this.pagingFrom, this.pagingTo)
     },
-    pagingFrom(): number {
-      return ITEM_COUNT * (this.page - 1);
+    pagingFrom (): number {
+      return ITEM_COUNT * (this.page - 1)
     },
-    pagingTo(): number {
-      return ITEM_COUNT * this.page;
+    pagingTo (): number {
+      return ITEM_COUNT * this.page
     },
-    pagingDirections(): string {
+    pagingDirections (): string {
       return `${this.pagingFrom + 1} - ${Math.min(
         this.pagingTo,
         this.searchServices.length
-      )} of ${this.searchServices.length}`;
+      )} of ${this.searchServices.length}`
     },
-    isFirstPage(): boolean {
-      return this.page === 1;
+    isFirstPage (): boolean {
+      return this.page === 1
     },
-    isLastPage(): boolean {
-      return ITEM_COUNT * this.page >= this.searchServices.length;
-    },
+    isLastPage (): boolean {
+      return ITEM_COUNT * this.page >= this.searchServices.length
+    }
   },
-});
+  mounted () {
+    this.fetchServices()
+  },
+  methods: {
+    async fetchServices () {
+      const res = await axios.get('/api/service_packages')
+
+      this.services = res.data
+    },
+    nextPage () {
+      if (!this.isLastPage) this.page += 1
+    },
+    previousPage () {
+      if (!this.isFirstPage) this.page -= 1
+    },
+    resetPage () {
+      this.page = 1
+    },
+    containsSearchTerm ({ name, description }: Service): boolean {
+      return (
+        name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        description.toLowerCase().includes(this.searchTerm.toLowerCase())
+      )
+    }
+  }
+})
 </script>
 
 <style lang="scss">
 .header {
   margin-top: 60px;
+
   width: 100%;
   display: flex;
   justify-content: space-between;
+
+  @media (max-width: 1000px) {
+    margin-top: 20px;
+  }
+  @media (max-width: 500px) {
+    flex-direction: column;
+  }
 
   .title {
     font-weight: bold;
@@ -176,6 +195,8 @@ export default Vue.extend({
     border: 0;
     border-radius: 3px;
 
+    cursor: pointer;
+
     &:active {
       transform: translateY(1px);
       filter: saturate(150%);
@@ -190,9 +211,13 @@ export default Vue.extend({
   input {
     background: url(/assets/Magnifying_Glass.svg) no-repeat scroll 10px;
     padding: 10px 10px 10px 34px;
-    width: calc(25% - 14px - 10px - 34px);
+    width: calc(25% - 44px - 24px);
+
+    @media (max-width: 1000px) {
+      width: calc(100% - 44px);
+    }
+
     font-size: 16px;
-    line-height: 19px;
     color: rgba(0, 0, 0, 0.45);
 
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -205,6 +230,19 @@ export default Vue.extend({
   width: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 700px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 500px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
   text-align: left;
   column-gap: 28px;
   row-gap: 32px;
@@ -214,12 +252,17 @@ export default Vue.extend({
     min-width: 0;
     min-height: 0;
 
+    &:hover {
+      border: 1px solid #A6C6FF;
+      cursor: pointer;
+    }
+
     &-title {
       font-size: 16px;
       font-weight: bold;
       color: #1456cb;
 
-      max-width: 90%;
+      max-width: 100%;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
@@ -238,10 +281,10 @@ export default Vue.extend({
     &-footer {
       margin-top: 18px;
       font-size: 13px;
-      line-height: 15px;
 
       &-badge {
         font-weight: bold;
+        line-height: 1;
 
         /* blue-500 */
 

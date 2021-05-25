@@ -18,7 +18,15 @@ export default Vue.extend({
 
 <style lang="scss">
 .container {
-  max-width: 942px;
+  max-width: 1000px;
   margin: 0 auto;
+
+  @media (max-width: 1000px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 500px) {
+    padding: 10px;
+  }
 }
 </style>
